@@ -214,13 +214,17 @@
 @media (max-width: 900px) {
   .page {
     flex-direction: column;
-    height: auto;
-    min-height: 100vh;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .content {
+    flex: none;
   }
   .posterPanel {
     height: auto;
     width: 100%;
     justify-content: center;
+    flex-shrink: 0;
   }
   .posterImage {
     height: auto;
