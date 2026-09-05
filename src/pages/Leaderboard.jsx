@@ -1,20 +1,53 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { useLeaderboard } from '../useLeaderboard'
+import { useLeaderboard, CATEGORIES } from '../useLeaderboard'
 import styles from './Leaderboard.module.css'
 
 // Podium order: 2nd left, 1st centre, 3rd right
 const PODIUM_ORDER = [2, 1, 3]
 
 const RANK_CONFIG = {
-  1: { color: '#ffd700', bg: 'linear-gradient(180deg, #b8860b 0%, #8B6914 100%)', height: 200, crown: '👑', label: '1ST' },
-  2: { color: '#c0c0c0', bg: 'linear-gradient(180deg, #6e6e6e 0%, #4a4a4a 100%)', height: 148, crown: '🥈', label: '2ND' },
-  3: { color: '#cd7f32', bg: 'linear-gradient(180deg, #7a4a1e 0%, #5a3515 100%)', height: 112, crown: '🥉', label: '3RD' },
+  1: { color: '#ffd700', bg: 'linear-gradient(180deg, #b8860b 0%, #8B6914 100%)', height: 112, crown: '👑', label: '1' },
+  2: { color: '#c0c0c0', bg: 'linear-gradient(180deg, #6e6e6e 0%, #4a4a4a 100%)', height: 86, crown: '🥈', label: '2' },
+  3: { color: '#cd7f32', bg: 'linear-gradient(180deg, #7a4a1e 0%, #5a3515 100%)', height: 64, crown: '🥉', label: '3' },
+}
+
+function CategoryBoard({ title, ranked }) {
+  const top3 = { 1: ranked[0], 2: ranked[1], 3: ranked[2] }
+
+  return (
+    <div className={styles.board}>
+      <div className={styles.boardTitle}>{title}</div>
+
+      <div className={styles.podiumArea}>
+        {PODIUM_ORDER.map((rank) => {
+          const entry = top3[rank]
+          const cfg = RANK_CONFIG[rank]
+          return (
+            <div key={rank} className={`${styles.podiumCol} ${styles[`col${rank}`]}`}>
+              <div className={styles.playerCard}>
+                <div className={styles.crown}>{cfg.crown}</div>
+                <div className={styles.playerName}>{entry?.name ?? '---'}</div>
+                <div className={styles.playerTime} style={{ color: cfg.color }}>
+                  {entry?.time ?? '0:00.000'}
+                </div>
+              </div>
+              <div
+                className={styles.podiumBlock}
+                style={{ height: cfg.height, background: cfg.bg, borderTop: `3px solid ${cfg.color}` }}
+              >
+                <span className={styles.podiumLabel} style={{ color: cfg.color }}>{cfg.label}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 export default function Leaderboard() {
-  const { entries } = useLeaderboard()
-  const byRank = Object.fromEntries(entries.map((e) => [e.rank, e]))
+  const { getRanked } = useLeaderboard()
 
   const [isFullscreen, setIsFullscreen] = useState(false)
 
@@ -33,38 +66,20 @@ export default function Leaderboard() {
   }, [])
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <img src="/androidkinglogo.png" alt="Android King logo" className={styles.logo} />
-        <h1 className={styles.title}>TIME ATTACK</h1>
-        <span className={styles.subtitle}>TOP 3 LEADERBOARD</span>
+    <div className={styles.page}>
+      <div className={styles.content}>
+        <div className={styles.boards}>
+          {CATEGORIES.map((cat) => (
+            <CategoryBoard key={cat.id} title={cat.label} ranked={getRanked(cat.id, 3)} />
+          ))}
+        </div>
+
+        <Link to="/edit" className={styles.editBtn}>✏ Edit Leaderboard</Link>
       </div>
 
-      <div className={styles.podiumArea}>
-        {PODIUM_ORDER.map((rank) => {
-          const entry = byRank[rank]
-          const cfg = RANK_CONFIG[rank]
-          return (
-            <div key={rank} className={`${styles.podiumCol} ${styles[`col${rank}`]}`}>
-              <div className={styles.playerCard}>
-                <div className={styles.crown}>{cfg.crown}</div>
-                <div className={styles.playerName}>{entry?.name ?? '---'}</div>
-                <div className={styles.playerTime} style={{ color: cfg.color }}>
-                  {entry?.time ?? '0:00.000'}
-                </div>
-              </div>
-              <div
-                className={styles.podiumBlock}
-                style={{ height: cfg.height, background: cfg.bg, borderTop: `4px solid ${cfg.color}` }}
-              >
-                <span className={styles.podiumLabel} style={{ color: cfg.color }}>{cfg.label}</span>
-              </div>
-            </div>
-          )
-        })}
+      <div className={styles.posterPanel}>
+        <img src="/akpostermm.jpeg" alt="Time Attack prizes poster" className={styles.posterImage} />
       </div>
-
-      <Link to="/edit" className={styles.editBtn}>✏ Edit Leaderboard</Link>
 
       <button
         className={styles.fullscreenBtn}

@@ -1,40 +1,41 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useLeaderboard } from '../useLeaderboard'
+import { Link } from 'react-router-dom'
+import { useLeaderboard, CATEGORIES } from '../useLeaderboard'
 import styles from './Edit.module.css'
 
-const MEDALS = { 1: '#ffd700', 2: '#c0c0c0', 3: '#cd7f32' }
-
 export default function Edit() {
-  const { entries, save } = useLeaderboard()
-  const navigate = useNavigate()
+  const { addEntry, updateEntry, removeEntry, getSorted } = useLeaderboard()
 
-  const [fields, setFields] = useState(() =>
-    entries.map((e) => ({
-      rank: e.rank,
-      name: e.name === '---' ? '' : e.name,
-      time: e.time === '0:00.000' ? '' : e.time,
-    }))
-  )
-  const [saved, setSaved] = useState(false)
+  const [category, setCategory] = useState(CATEGORIES[0].id)
+  const [name, setName] = useState('')
+  const [time, setTime] = useState('')
+  const [phone, setPhone] = useState('')
 
-  function handleChange(rank, field, value) {
-    setFields((prev) =>
-      prev.map((f) => (f.rank === rank ? { ...f, [field]: value } : f))
-    )
-    setSaved(false)
+  const [editingId, setEditingId] = useState(null)
+  const [editName, setEditName] = useState('')
+  const [editTime, setEditTime] = useState('')
+
+  function handleAdd(e) {
+    e.preventDefault()
+    addEntry({ category, name, time, phone })
+    setName('')
+    setTime('')
+    setPhone('')
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    const updated = fields.map((f) => ({
-      rank: f.rank,
-      name: f.name.trim() || '---',
-      time: f.time.trim() || '0:00.000',
-    }))
-    save(updated)
-    setSaved(true)
-    setTimeout(() => navigate('/'), 800)
+  function startEdit(entry) {
+    setEditingId(entry.id)
+    setEditName(entry.name)
+    setEditTime(entry.time)
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+  }
+
+  function saveEdit(id) {
+    updateEntry(id, { name: editName.trim() || '---', time: editTime.trim() || '0:00.000' })
+    setEditingId(null)
   }
 
   return (
@@ -45,46 +46,99 @@ export default function Edit() {
         <span className={styles.label}>EDIT LEADERBOARD</span>
       </div>
 
-      {saved && <div className={styles.alert}>Saved! Redirecting...</div>}
-
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {fields.map((f) => (
-          <div key={f.rank} className={styles.entry}>
-            <div className={styles.badge} style={{ color: MEDALS[f.rank] }}>
-              {f.rank}
-            </div>
-            <div className={styles.fields}>
-              <div className={styles.group}>
-                <label className={styles.fieldLabel}>Name</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={f.name}
-                  onChange={(e) => handleChange(f.rank, 'name', e.target.value)}
-                  placeholder="Player name"
-                  maxLength={30}
-                />
-              </div>
-              <div className={styles.group}>
-                <label className={styles.fieldLabel}>Time</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={f.time}
-                  onChange={(e) => handleChange(f.rank, 'time', e.target.value)}
-                  placeholder="e.g. 1:23.456"
-                  maxLength={15}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
-
-        <div className={styles.actions}>
-          <button type="submit" className={styles.saveBtn}>Save Changes</button>
-          <Link to="/" className={styles.backBtn}>Back</Link>
-        </div>
+      <form onSubmit={handleAdd} className={styles.addForm}>
+        <select
+          className={styles.select}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          {CATEGORIES.map((c) => (
+            <option key={c.id} value={c.id}>{c.label}</option>
+          ))}
+        </select>
+        <input
+          className={styles.input}
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Player name"
+          maxLength={30}
+        />
+        <input
+          className={styles.input}
+          type="text"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          placeholder="e.g. 1:23.456"
+          maxLength={15}
+        />
+        <input
+          className={styles.input}
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Phone (optional)"
+          maxLength={20}
+        />
+        <button type="submit" className={styles.addBtn}>+ Add Entry</button>
       </form>
+      <p className={styles.hint}>Any field can be left blank and filled in later — see it, or edit it, on the <Link to="/data" className={styles.hintLink}>All Data</Link> page.</p>
+
+      <div className={styles.categories}>
+        {CATEGORIES.map((cat) => {
+          const sorted = getSorted(cat.id)
+          return (
+            <div key={cat.id} className={styles.categoryBlock}>
+              <h2 className={styles.categoryTitle}>{cat.label}</h2>
+              <div className={styles.entryList}>
+                {sorted.length === 0 && <div className={styles.empty}>No entries yet</div>}
+                {sorted.map((entry, i) => {
+                  const rank = i + 1
+                  const isEditing = editingId === entry.id
+                  return (
+                    <div
+                      key={entry.id}
+                      className={`${styles.entryRow} ${rank > 10 ? styles.overflowRow : ''}`}
+                    >
+                      <span className={styles.rank}>{rank}</span>
+                      {isEditing ? (
+                        <>
+                          <input
+                            className={styles.inlineInput}
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            maxLength={30}
+                          />
+                          <input
+                            className={styles.inlineInput}
+                            value={editTime}
+                            onChange={(e) => setEditTime(e.target.value)}
+                            maxLength={15}
+                          />
+                          <button type="button" className={styles.smallBtn} onClick={() => saveEdit(entry.id)}>Save</button>
+                          <button type="button" className={styles.smallBtnGhost} onClick={cancelEdit}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <span className={styles.entryName}>{entry.name}</span>
+                          <span className={styles.entryTime}>{entry.time}</span>
+                          <button type="button" className={styles.smallBtn} onClick={() => startEdit(entry)}>Edit</button>
+                          <button type="button" className={styles.smallBtnDanger} onClick={() => removeEntry(entry.id)}>✕</button>
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className={styles.actionsRow}>
+        <Link to="/data" className={styles.dataBtn}>📋 View All Data</Link>
+        <Link to="/" className={styles.backBtn}>Back to Leaderboard</Link>
+      </div>
     </div>
   )
 }
