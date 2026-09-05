@@ -16,7 +16,9 @@ export function parseTimeToMs(time) {
   const minutes = min ? parseInt(min, 10) : 0
   const seconds = parseInt(sec, 10)
   const millis = ms ? parseInt(ms.padEnd(3, '0'), 10) : 0
-  return (minutes * 60 + seconds) * 1000 + millis
+  const totalMs = (minutes * 60 + seconds) * 1000 + millis
+  // 0:00.000 is the placeholder for an unfilled time, not a real (impossible) run — sort it last.
+  return totalMs === 0 ? Infinity : totalMs
 }
 
 export function useLeaderboard() {
