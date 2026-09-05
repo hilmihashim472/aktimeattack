@@ -26,6 +26,7 @@ export default function AllData() {
   }
 
   function saveEdit(id) {
+    if (!window.confirm('Save changes to this entry?')) return
     updateEntry(id, {
       category: editFields.category,
       name: editFields.name.trim() || '---',
@@ -33,6 +34,11 @@ export default function AllData() {
       phone: editFields.phone.trim() || null,
     })
     setEditingId(null)
+  }
+
+  function handleDelete(entry) {
+    if (!window.confirm(`Delete ${entry.name}'s entry? This cannot be undone.`)) return
+    removeEntry(entry.id)
   }
 
   return (
@@ -121,7 +127,7 @@ export default function AllData() {
                   <td className={styles.mono}>{entry.phone || '—'}</td>
                   <td className={styles.actions}>
                     <button type="button" className={styles.smallBtn} onClick={() => startEdit(entry)}>Edit</button>
-                    <button type="button" className={styles.smallBtnDanger} onClick={() => removeEntry(entry.id)}>✕</button>
+                    <button type="button" className={styles.smallBtnDanger} onClick={() => handleDelete(entry)}>✕</button>
                   </td>
                 </tr>
               )

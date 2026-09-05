@@ -34,8 +34,14 @@ export default function Edit() {
   }
 
   function saveEdit(id) {
+    if (!window.confirm('Save changes to this entry?')) return
     updateEntry(id, { name: editName.trim() || '---', time: editTime.trim() || '0:00.000' })
     setEditingId(null)
+  }
+
+  function handleDelete(entry) {
+    if (!window.confirm(`Delete ${entry.name}'s entry? This cannot be undone.`)) return
+    removeEntry(entry.id)
   }
 
   return (
@@ -123,7 +129,7 @@ export default function Edit() {
                           <span className={styles.entryName}>{entry.name}</span>
                           <span className={styles.entryTime}>{entry.time}</span>
                           <button type="button" className={styles.smallBtn} onClick={() => startEdit(entry)}>Edit</button>
-                          <button type="button" className={styles.smallBtnDanger} onClick={() => removeEntry(entry.id)}>✕</button>
+                          <button type="button" className={styles.smallBtnDanger} onClick={() => handleDelete(entry)}>✕</button>
                         </>
                       )}
                     </div>
