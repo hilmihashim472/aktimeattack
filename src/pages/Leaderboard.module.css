@@ -39,6 +39,10 @@
 }
 
 .boardTitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 3px;
@@ -47,6 +51,19 @@
   padding-bottom: 6px;
   border-bottom: 2px solid #dc1e1e;
   text-align: center;
+}
+
+.playerCount {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: none;
+  color: #ff9a9a;
+  background: rgba(220,30,30,0.15);
+  border: 1px solid rgba(220,30,30,0.35);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
 }
 
 /* ── Podium ── */

@@ -12,12 +12,15 @@ const RANK_CONFIG = {
   3: { color: '#cd7f32', bg: 'linear-gradient(180deg, #7a4a1e 0%, #5a3515 100%)', height: 64, crown: '🥉', label: '3' },
 }
 
-function CategoryBoard({ title, ranked }) {
+function CategoryBoard({ title, ranked, total }) {
   const top3 = { 1: ranked[0], 2: ranked[1], 3: ranked[2] }
 
   return (
     <div className={styles.board}>
-      <div className={styles.boardTitle}>{title}</div>
+      <div className={styles.boardTitle}>
+        <span>{title}</span>
+        <span className={styles.playerCount}>{total} {total === 1 ? 'Player' : 'Players'}</span>
+      </div>
 
       <div className={styles.podiumArea}>
         {PODIUM_ORDER.map((rank) => {
@@ -47,7 +50,7 @@ function CategoryBoard({ title, ranked }) {
 }
 
 export default function Leaderboard() {
-  const { getRanked } = useLeaderboard()
+  const { getRanked, getSorted } = useLeaderboard()
 
   const [isFullscreen, setIsFullscreen] = useState(false)
 
@@ -70,7 +73,12 @@ export default function Leaderboard() {
       <div className={styles.content}>
         <div className={styles.boards}>
           {CATEGORIES.map((cat) => (
-            <CategoryBoard key={cat.id} title={cat.label} ranked={getRanked(cat.id, 3)} />
+            <CategoryBoard
+              key={cat.id}
+              title={cat.label}
+              ranked={getRanked(cat.id, 3)}
+              total={getSorted(cat.id).length}
+            />
           ))}
         </div>
 
