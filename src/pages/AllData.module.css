@@ -45,6 +45,77 @@
   line-height: 1;
 }
 
+/* ── Filter bar ── */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.filterSelect,
+.filterDate {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  padding: 9px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+}
+
+.filterSelect:focus,
+.filterDate:focus {
+  border-color: rgba(220,30,30,0.6);
+  background: rgba(255,255,255,0.07);
+}
+
+.filterDate {
+  color-scheme: dark;
+}
+
+.clearDateBtn {
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #ccc;
+  transition: all 0.2s;
+}
+
+.clearDateBtn:hover {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+}
+
+.exportBtn {
+  margin-left: auto;
+  padding: 9px 18px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid rgba(50,180,100,0.35);
+  background: rgba(50,180,100,0.15);
+  color: #6fdd9a;
+  transition: all 0.2s;
+}
+
+.exportBtn:hover {
+  background: rgba(50,180,100,0.25);
+  color: #fff;
+  border-color: rgba(50,180,100,0.55);
+}
+
 /* ── Table ── */
 .tableWrap {
   flex: 1;
@@ -192,5 +263,16 @@
 @media (max-width: 700px) {
   .actionsRow {
     flex-direction: column;
+  }
+  .filterBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filterSelect,
+  .filterDate,
+  .clearDateBtn,
+  .exportBtn {
+    margin-left: 0;
+    width: 100%;
   }
 }
